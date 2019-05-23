@@ -123,7 +123,7 @@
 	
 		whileLife:
 			
-			beq $t0, $s0, startGame
+			beq $t0, $s0, drawTopBorder
 			
 			move $a0, $t1
 			li $a1, 31
@@ -137,6 +137,139 @@
 			addi $t1, $t1, -1
 			
 			j whileLife
+			
+	drawTopBorder:
+		
+		li $t0, 0
+		li $t1, 0
+		
+		whileTopBorder:
+			
+			beq $t0, 32, drawRightBorder
+			
+			move $a0, $t1
+			li $a1, 0
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t0, $t0, 1
+			addi $t1, $t1, 1
+			
+			j whileTopBorder
+			
+	drawRightBorder:
+	
+		li $t0, 0
+		li $t1, 0
+		
+		whileRightBorder:
+			
+			beq $t0, 31, drawLeftBorder
+			
+			move $a1, $t1
+			li $a0, 31
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t0, $t0, 1
+			addi $t1, $t1, 1
+			
+			j whileRightBorder
+			
+	drawLeftBorder:
+	
+		li $t0, 0
+		li $t1, 0
+		
+		whileLeftBorder:
+		
+			beq $t0, 32, drawNextLife
+			
+			li $a0, 0
+			move $a1, $t1
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t0, $t0, 1
+			addi $t1, $t1, 1
+			
+			j whileLeftBorder
+			
+	drawNextLife:
+	
+		li $t0, 0
+		li $t1, 0
+		li $t2, 32
+		sub $t2, $t2, $s0
+		
+		whileNextLife:
+				
+			beq $t0, $t2, drawBottomBorder
+				
+			move $a0, $t1
+			li $a1, 31
+			jal GetCoordinate
+				
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+				
+			addi $t0, $t0, 1
+			addi $t1, $t1, 1
+			
+			j whileNextLife
+				
+	drawBottomBorder:
+	
+		li $t0, 0
+		li $t1, 0
+		
+		whileBottomBorder:
+			
+			beq $t0, 32, init
+			
+			move $a0, $t1
+			li $a1, 30
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t0, $t0, 1
+			addi $t1, $t1, 1
+			
+			j whileBottomBorder
+			
+	init:
+	
+		clearRegisters:
+			
+			li $v0, 0
+			li $v1, 0
+			li $a0, 0
+			li $a1, 0
+			li $a2, 0
+			li $a3, 0
+			li $t0, 0
+			li $t1, 0
+			li $t2, 0
+			li $t3, 0
+			li $t4, 0
+			li $t5, 0
+			li $t6, 0
+			li $t7, 0
+			li $t8, 0
+			li $t9, 0 
 		
 	#Inizio della partita
 	
