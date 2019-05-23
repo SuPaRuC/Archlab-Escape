@@ -29,11 +29,59 @@
 	chest: .word 0xbc9401
 	player: .word 0xff00b2
 	corridor: .word 0x000000
+	life: .word 0xff0004
+	
+	# Info sul gioco
+	levelDifficulty: .asciiz "Seleziona difficoltà:\n1 - Facile\n2 - Normale\n3 - Difficile"
+	easy: .word 8
+	normal: .word 6
+	hard: .word 4
 
 .text
 .globl main
 
 	main:
+	
+		# Chiedo all'utente la difficoltà
+		li $v0, 51
+		la $a0, levelDifficulty
+		syscall
+		
+		# Controllo se l'input è corretto
+		beq $a0, 1, saveDiff
+		beq $a0, 2, saveDiff
+		beq $a0, 3, saveDiff
+		
+		# Altrmenti il gioco finisce
+		j endGame
+		
+	# Se l'input è corretto salvo la difficoltà nel registro $s0
+	saveDiff:
+	
+		# Controllo la difficoltà scelta
+		beq $a0, 1, easyDiff
+		beq $a0, 2, normalDiff
+		beq $a0, 3, hardDiff
+		
+		# Se la difficoltà è 'facile'
+		easyDiff:
+			
+			lw $s0, easy
+			j clearBackground
+			
+		# Se la difficoltà è 'normale'
+		normalDiff:
+			
+			lw $s0, normal
+			j clearBackground
+			
+		# Se la difficoltà è 'difficile'
+		hardDiff:
+			
+			lw $s0, hard
+			j clearBackground
+			
+	# Salvata la difficoltà pulisco lo sfondo
 	
 	clearBackground:
 	
@@ -69,6 +117,30 @@
 	# Disegno la vita del giocatore
 			
 	drawGamerLife:
+	
+		li $t0, 0
+		li $t1, 31
+	
+		whileLife:
+			
+			beq $t0, $s0, startGame
+			
+			move $a0, $t1
+			li $a1, 31
+			jal GetCoordinate
+		
+			move $a0, $v0
+			lw $a1, life
+			jal Draw
+			
+			addi $t0, $t0, 1
+			addi $t1, $t1, -1
+			
+			j whileLife
+		
+	#Inizio della partita
+	
+	startGame:
 
 		# Stampo messaggio di benvenuto
 
@@ -76,6 +148,8 @@
 		la $a0, welcomeMessage
 		li $a1, 1
 		syscall
+		
+	endGame:
 		
 		j EndGame
 
