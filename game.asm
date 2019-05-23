@@ -18,14 +18,59 @@
 	
 	welcomeMessage: .asciiz "Benvenuto!"
 	
-	#coordinate dello schermo
+	# Coordinate dello schermo
 	screenX: .word 32
 	screenY: .word 32
+	
+	# Colori utilizzati
+	door: .word 0x821717
+	border: .word 0x0800ff
+	room: .word 0x0072ff
+	chest: .word 0xbc9401
+	player: .word 0xff00b2
+	corridor: .word 0x000000
 
 .text
 .globl main
 
 	main:
+	
+	clearBackground:
+	
+		lw $t0, screenX
+		lw $t1, corridor
+		li $t2, 4
+		
+		# Pixel totali
+		mult $t0, $t0 
+		mflo $a0
+		
+		# Byte totali
+		mult $a0, $t2 
+		mflo $a2
+		
+		# Aggiungo base address
+		add $a0, $a0, $a2
+		add $a0, $a0, $gp 
+		
+		# Counter
+		add $a1, $gp, $zero 
+		
+		whileNotClear:
+			
+			beq $a1, $a0, drawGamerLife
+			
+			sw $t1, 0($a1) 
+			
+			addi $a1, $a1, 4 
+			
+			j whileNotClear
+			
+	# Disegno la vita del giocatore
+			
+	drawGamerLife:
+
+		# Stampo messaggio di benvenuto
 
 		li $v0, 55
 		la $a0, welcomeMessage
@@ -34,9 +79,9 @@
 		
 		j EndGame
 
-	#Funzione Pause
-	#$a0 -> numero di millisecondi per la pausa
-	#la funzione non ritorna nulla
+	# Funzione Pause
+	# $a0 -> numero di millisecondi per la pausa
+	# La funzione non ritorna nulla
 	
 	Pause:
 		
@@ -44,10 +89,10 @@
 		syscall
 		jr $ra
 		
-	#Funzione GetCoordinate
-	#$a0 -> coordinata x
-	#$a1 -> coordinata y
-	#RITORNO $v0 -> pixel da colorare
+	# Funzione GetCoordinate
+	# $a0 -> coordinata x
+	# $a1 -> coordinata y
+	# RITORNO $v0 -> pixel da colorare
 	
 	GetCoordinate:
 		
@@ -71,18 +116,18 @@
 		#ritorno $v0
 		jr $ra
 		
-	#Funzione Draw
-	#$a0 -> pixel da colorare
-	#$a1 -> colore
-	#la funzione non ritorna nulla
+	# Funzione Draw
+	# $a0 -> pixel da colorare
+	# $a1 -> colore
+	# La funzione non ritorna nulla
 	
 	Draw:
 	
 		sw $a1, 0($a0)
 		jr $ra
 		
-	#Funzione EndGame
-	#finisce il gioco, mostra il punteggio e chiede all'utente se vuole rigiocare
+	# Funzione EndGame
+	# Finisce il gioco, mostra il punteggio e chiede all'utente se vuole rigiocare
 	
 	EndGame:
 		
