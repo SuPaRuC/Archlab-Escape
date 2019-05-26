@@ -11,6 +11,10 @@
 	#                                  #
 	####################################
 	
+	# Questo gioco fa uso dei seguenti tools:
+	# - Bitmap Display -> indicazioni fornite nell'area soprastante
+	# - Keyboard Simulator 
+	
 	# 119 -> W
 	# 97 -> A
 	# 115 -> S
@@ -137,6 +141,8 @@
 			addi $t1, $t1, -1
 			
 			j whileLife
+			
+	# Una volta disegnata la vita disegno il campo esterno del gioco
 			
 	drawTopBorder:
 		
@@ -271,7 +277,7 @@
 			li $t8, 0
 			li $t9, 0 
 		
-	#Inizio della partita
+	# Inizio della partita
 	
 	startGame:
 
@@ -306,21 +312,21 @@
 		lw $t8, screenX
 		li $a2, 4
 		
-		#moltiplico la coordinata y per le dimensioni dello schermo
+		# Moltiplico la coordinata y per le dimensioni dello schermo
 		mult $t8, $a1
 		mflo $a3
 		
-		#aggiungo x
+		# Aggiungo x
 		add $a3, $a3, $a0
 		
-		#moltiplico per 4 -> numero bit totali
+		# Moltiplico per 4 -> numero bit totali
 		mult $a3, $a2
 		mflo $v0
 		
-		#aggiungo il base address
+		# Aggiungo il base address
 		add $v0, $v0, $gp
 		
-		#ritorno $v0
+		# Ritorno $v0
 		jr $ra
 		
 	# Funzione Draw
