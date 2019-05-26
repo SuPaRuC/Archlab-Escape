@@ -28,6 +28,7 @@
 	
 	# Colori utilizzati
 	door: .word 0x821717
+	lockedDoor: .word 0x7a1414
 	border: .word 0x0800ff
 	room: .word 0x0072ff
 	chest: .word 0xbc9401
@@ -461,7 +462,7 @@
 			jal GetCoordinate
 			
 			move $a0, $v0
-			lw $a1, door
+			lw $a1, lockedDoor
 			jal Draw
 			
 			j drawRoom4
@@ -548,10 +549,10 @@
 			jal GetCoordinate
 			
 			move $a0, $v0
-			lw $a1, door
+			lw $a1, lockedDoor
 			jal Draw
 			
-			# Disegno la chest
+			# Disegno la chest1
 			
 			li $a0, 1
 			li $a1, 12
@@ -561,9 +562,248 @@
 			lw $a1, chest
 			jal Draw
 			
-			j init
+			# Disegno la chest2
 			
+			li $a0, 6
+			li $a1, 16
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, chest
+			jal Draw
+			
+			j drawRoom5
+			
+	drawRoom5:
 	
+		li $t0, 0
+		li $t1, 0
+		li $t2, 0
+		li $t3, 24
+		li $t4, 24
+		li $t5, 17
+		
+		whileRoom5Left:
+		
+			beq $t0, 6, whileRoom5Right
+			
+			move $a1, $t3
+			li $a0, 16
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t0, $t0, 1
+			addi $t3, $t3, 1
+			
+			j whileRoom5Left
+			
+		whileRoom5Right:
+		
+			beq $t1, 6, whileRoom5Top
+			
+			move $a1, $t4
+			li $a0, 23
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t1, $t1, 1
+			addi $t4, $t4, 1
+			
+			j whileRoom5Right
+			
+		whileRoom5Top:
+		
+			beq $t2, 3, drawMissingPartsRoom5
+			
+			move $a0, $t5
+			li $a1, 24
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t2, $t2, 1
+			addi $t5, $t5, 1
+			
+			j whileRoom5Top
+			
+		drawMissingPartsRoom5:
+		
+			li $a0, 21
+			li $a1, 24
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			li $a0, 22
+			li $a1, 24
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			# Disegno la porta
+			li $a0, 20
+			li $a1, 24
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, door
+			jal Draw
+			
+			# Disegno la chest
+			li $a0, 22
+			li $a1, 29
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, chest
+			jal Draw
+			
+			j drawRoom6
+			
+	drawRoom6:
+	
+		# Aggiunto un counter perchè ci sono 4 pareti
+	
+		li $t0, 0
+		li $t1, 0
+		li $t2, 0
+		li $t3, 0
+		li $t4, 11
+		li $t5, 11
+		li $t6, 20
+		li $t7, 22
+		
+		whileRoom6Left:
+		
+			beq $t0, 7, whileRoom6Right
+			
+			move $a1, $t4
+			li $a0, 19
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t0, $t0, 1
+			addi $t4, $t4, 1
+			
+			j whileRoom6Left
+			
+		whileRoom6Right:
+		
+			beq $t1, 7, whileRoom6Top
+			
+			move $a1, $t5
+			li $a0, 27
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t1, $t1, 1
+			addi $t5, $t5, 1
+			
+			j whileRoom6Right
+			
+		whileRoom6Top:
+		
+			beq $t2, 5, whileRoom6Bottom
+			
+			move $a0, $t6
+			li $a1, 11
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t2, $t2, 1
+			addi $t6, $t6, 1
+			
+			j whileRoom6Top
+			
+		whileRoom6Bottom:
+		
+			beq $t3, 5, drawMissingPartsRoom6
+			
+			move $a0, $t7
+			li $a1, 17
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t3, $t3, 1
+			addi $t7, $t7, 1
+			
+			j whileRoom6Bottom
+			
+		drawMissingPartsRoom6:
+			
+			li $a0, 26
+			li $a1, 11
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			li $a0, 20
+			li $a1, 17
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			# Disegno la porta1
+			
+			li $a0, 25
+			li $a1, 11
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, lockedDoor
+			jal Draw
+			
+			# Disegno la porta2
+			
+			li $a0, 21
+			li $a1, 17
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, lockedDoor
+			jal Draw
+			
+			# Disegno la chest
+			
+			li $a0, 23
+			li $a1, 14
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, chest
+			jal Draw
+			
+			j init
+	
+		
 		
 	init:
 	
