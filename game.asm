@@ -389,6 +389,81 @@
 			lw $a1, border
 			jal Draw
 			
+			j drawRoom3
+			
+			
+	# Aggiunto counter $t3 perchè ci sono 3 pareti
+	
+	drawRoom3:
+	
+		li $t0, 0
+		li $t1, 0
+		li $t2, 0
+		li $t3, 1
+		li $t4, 1
+		li $t5, 15
+		
+		whileRoom3Left:
+		
+			beq $t0, 4, whileRoom3Right
+			
+			move $a1, $t3
+			li $a0, 13
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t0, $t0, 1
+			addi $t3, $t3, 1
+			
+			j whileRoom3Left
+			
+		whileRoom3Right:
+		
+			beq $t1, 4, whileRoom3Bottom
+			
+			move $a1, $t4
+			li $a0, 18
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t1, $t1, 1
+			addi $t4, $t4, 1
+			
+			j whileRoom3Right
+			
+		whileRoom3Bottom:
+		
+			beq $t2, 3, doorRoom3
+			
+			move $a0, $t5
+			li $a1, 4
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t2, $t2, 1
+			addi $t5, $t5, 1
+			
+			j whileRoom3Bottom
+			
+		doorRoom3:
+		
+			li $a0, 14
+			li $a1, 4
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, door
+			jal Draw
+			
 			j init
 		
 	init:
