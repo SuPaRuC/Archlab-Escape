@@ -466,6 +466,16 @@
 			lw $a1, lockedDoor
 			jal Draw
 			
+			# Disegno la chest
+			
+			li $a0, 17
+			li $a1, 1
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, chest
+			jal Draw
+			
 			j drawRoom4
 			
 	drawRoom4:
@@ -901,8 +911,93 @@
 			lw $a1, stairs
 			jal Draw
 				
-			j init
+			j drawRoom1BG
+			
+	drawRoom1BG:
+	
+		li $t0, 0
+		li $t1, 0
+		li $t2, 1
+		li $t3, 1
 					
+		whileNotAllRoom1:
+		
+			beq $t0, 25, drawRoom2BG
+			
+			beq $t1, 5, fullRowRoom1
+			
+			j goRoom1
+			
+			fullRowRoom1:
+			
+				li $t1, 0
+				addi $t3, $t3, 1
+				li $t2, 1
+				
+			goRoom1:
+			
+				move $a0, $t2
+				move $a1, $t3
+				jal GetCoordinate
+				
+				move $a0, $v0
+				lw $a1, room
+				jal Draw
+				
+				addi $t2, $t2, 1
+				addi $t1, $t1, 1
+				addi $t0, $t0, 1
+				
+				j whileNotAllRoom1
+				
+	drawRoom2BG:
+	
+		li $t0, 0
+		li $t1, 0
+		li $t2, 1
+		li $t3, 23
+					
+		whileNotAllRoom2:
+		
+			beq $t0, 49, drawCharacter
+			
+			beq $t1, 7, fullRowRoom2
+			
+			j goRoom2
+			
+			fullRowRoom2:
+			
+				li $t1, 0
+				addi $t3, $t3, 1
+				li $t2, 1
+				
+			goRoom2:
+			
+				move $a0, $t2
+				move $a1, $t3
+				jal GetCoordinate
+				
+				move $a0, $v0
+				lw $a1, room
+				jal Draw
+				
+				addi $t2, $t2, 1
+				addi $t1, $t1, 1
+				addi $t0, $t0, 1
+				
+				j whileNotAllRoom2
+				
+	drawCharacter:
+	
+		li $a0, 12
+		li $a1, 27
+		jal GetCoordinate
+		
+		move $a0, $v0
+		lw $a1, player
+		jal Draw
+		
+		j init
 		
 	init:
 	
