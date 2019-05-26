@@ -35,6 +35,7 @@
 	player: .word 0xff00b2
 	corridor: .word 0x000000
 	life: .word 0xff0004
+	stairs: .word 0x6a6f77
 	
 	# Info sul gioco
 	levelDifficulty: .asciiz "Seleziona difficoltà:\n1 - Facile\n2 - Normale\n3 - Difficile"
@@ -801,9 +802,107 @@
 			lw $a1, chest
 			jal Draw
 			
-			j init
+			j drawRoom7
+			
+	drawRoom7:
 	
+		li $t0, 0
+		li $t1, 0
+		li $t2, 22
+		li $t3, 1
 		
+		whileRoom7Bottom:
+		
+			beq $t0, 9, whileRoom7Left
+			
+			move $a0, $t2
+			li $a1, 8
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t0, $t0, 1
+			addi $t2, $t2, 1
+			
+			j whileRoom7Bottom
+			
+		whileRoom7Left:
+			
+			beq $t1, 5, drawMissingPartsRoom7
+			
+			move $a1, $t3
+			li $a0, 22
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t1, $t1, 1
+			addi $t3, $t3, 1
+			
+			j whileRoom7Left
+			
+		drawMissingPartsRoom7:
+		
+			li $a0, 22
+			li $a1, 7
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw	
+			
+			# Draw door
+			
+			li $a0, 22
+			li $a1, 6
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, lockedDoor
+			jal Draw
+			
+			j drawStairs
+			
+		drawStairs:
+			
+			li $a0, 29
+			li $a1, 1
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, stairs
+			jal Draw
+				
+			li $a0, 30
+			li $a1, 1
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, stairs
+			jal Draw
+				
+			li $a0, 29
+			li $a1, 2
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, stairs
+			jal Draw
+				
+			li $a0, 30
+			li $a1, 2
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, stairs
+			jal Draw
+				
+			j init
+					
 		
 	init:
 	
