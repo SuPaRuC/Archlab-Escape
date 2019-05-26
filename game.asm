@@ -320,6 +320,75 @@
 			lw $a1, border
 			jal Draw
 			
+			j drawRoom2
+			
+	drawRoom2:
+	
+		li $t0, 0
+		li $t1, 0
+		li $t2, 22
+		li $t3, 1
+	
+		whileRoom2Right:
+		
+			beq $t0, 8, whileRoom2Top
+			
+			move $a1, $t2
+			li $a0, 8
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t0, $t0, 1
+			addi $t2, $t2, 1
+			
+			j whileRoom2Right
+			
+		whileRoom2Top:
+		
+			beq $t1, 4, doorRoom2
+			
+			move $a0, $t3
+			li $a1, 22
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t1, $t1, 1
+			addi $t3, $t3, 1
+			
+			j whileRoom2Top
+			
+		doorRoom2:
+		
+			li $a0, 5
+			li $a1, 22
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, door
+			jal Draw
+			
+			li $a0, 6
+			li $a1, 22
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			li $a0, 7
+			li $a1, 22
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
 			j init
 		
 	init:
