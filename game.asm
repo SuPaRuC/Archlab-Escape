@@ -143,6 +143,7 @@
 			j whileLife
 			
 	# Una volta disegnata la vita disegno il campo esterno del gioco
+	# $t0 -> counter
 			
 	drawTopBorder:
 		
@@ -241,7 +242,7 @@
 		
 		whileBottomBorder:
 			
-			beq $t0, 32, init
+			beq $t0, 32, drawRoom1
 			
 			move $a0, $t1
 			li $a1, 30
@@ -256,6 +257,71 @@
 			
 			j whileBottomBorder
 			
+	# Disegnato il design generale disegno le stanze
+	# $t0, $t1 -> counters
+	
+	drawRoom1:
+	
+		li $t0, 0
+		li $t1, 0
+		li $t2, 1
+		li $t3, 1
+		
+		whileRoom1Bottom:
+			
+			beq $t0, 6, whileRoom1Right
+			
+			move $a0, $t2
+			li $a1, 6
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t0, $t0, 1
+			addi $t2, $t2, 1
+			
+			j whileRoom1Bottom
+			
+		whileRoom1Right:
+		
+			beq $t1, 3, doorRoom1
+			
+			move $a1, $t3
+			li $a0, 6
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t1, $t1, 1
+			addi $t3, $t3, 1
+			
+			j whileRoom1Right
+			
+		# Disegno la porta + eventuali pixel mancanti
+		doorRoom1:
+		
+			li $a0, 6
+			li $a1, 4
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, door
+			jal Draw
+			
+			li $a0, 6
+			li $a1, 5
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			j init
+		
 	init:
 	
 		clearRegisters:
