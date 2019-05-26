@@ -464,7 +464,106 @@
 			lw $a1, door
 			jal Draw
 			
+			j drawRoom4
+			
+	drawRoom4:
+	
+		li $t0, 0
+		li $t1, 0
+		li $t3, 1
+		li $t4, 1
+		
+		whileRoom4Top:
+		
+			beq $t0, 10, whileRoom4Bottom
+			
+			move $a0, $t3
+			li $a1, 11
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t0, $t0, 1
+			addi $t3, $t3, 1
+			
+			j whileRoom4Top
+			
+		whileRoom4Bottom:
+		
+			beq $t1, 10, drawMissingPartsRoom4
+			
+			move $a0, $t4
+			li $a1, 17
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			addi $t1, $t1, 1
+			addi $t4, $t4, 1
+			
+			j whileRoom4Bottom
+			
+		drawMissingPartsRoom4:
+		
+			li $a0, 10
+			li $a1, 12
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			li $a0, 10
+			li $a1, 13
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			li $a0, 10
+			li $a1, 15
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			li $a0, 10
+			li $a1, 16
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, border
+			jal Draw
+			
+			# Disegno la porta
+			
+			li $a0, 10
+			li $a1, 14
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, door
+			jal Draw
+			
+			# Disegno la chest
+			
+			li $a0, 1
+			li $a1, 12
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, chest
+			jal Draw
+			
 			j init
+			
+	
 		
 	init:
 	
