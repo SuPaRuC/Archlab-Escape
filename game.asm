@@ -42,6 +42,10 @@
 	easy: .word 8
 	normal: .word 6
 	hard: .word 4
+	
+	# Posizione del giocatore
+	playerX: .word 12
+	playerY: .word 27
 
 .text
 .globl main
@@ -959,7 +963,7 @@
 					
 		whileNotAllRoom2:
 		
-			beq $t0, 49, drawCharacter
+			beq $t0, 49, drawPlayer
 			
 			beq $t1, 7, fullRowRoom2
 			
@@ -987,10 +991,10 @@
 				
 				j whileNotAllRoom2
 				
-	drawCharacter:
+	drawPlayer:
 	
-		li $a0, 12
-		li $a1, 27
+		lw $a0, playerX
+		lw $a1, playerY
 		jal GetCoordinate
 		
 		move $a0, $v0
