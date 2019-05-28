@@ -42,6 +42,10 @@
 	easy: .word 8
 	normal: .word 6
 	hard: .word 4
+	
+	# Posizione del giocatore
+	playerX: .word 12
+	playerY: .word 27
 
 .text
 .globl main
@@ -959,7 +963,7 @@
 					
 		whileNotAllRoom2:
 		
-			beq $t0, 49, drawCharacter
+			beq $t0, 49, drawPlayer
 			
 			beq $t1, 7, fullRowRoom2
 			
@@ -987,10 +991,10 @@
 				
 				j whileNotAllRoom2
 				
-	drawCharacter:
+	drawPlayer:
 	
-		li $a0, 12
-		li $a1, 27
+		lw $a0, playerX
+		lw $a1, playerY
 		jal GetCoordinate
 		
 		move $a0, $v0
@@ -1031,9 +1035,261 @@
 		li $a1, 1
 		syscall
 		
+	input:
+	
+		# Prendo l'input da tastiera
+		li $t0, 0xffff0000
+		lw $t1, ($t0)
+		andi $t1, $t1, 0x0001
+		
+		# Se l'utente non inserisce un nuovo input non faccio nulla
+		beqz $t1, doNothing
+		
+		# Salvo la direzione per l'update
+		lw $a2, 4($t0)
+		
+		j updatePlayerPosition
+		
+	updatePlayerPosition:
+		
+		# Direzione update
+		beq $a2, 97, updatePlayerLeft
+		beq $a2, 100, updatePlayerRight
+		beq $a2, 115, updatePlayerBottom
+		beq $a2, 119, updatePlayerTop
+		
+		updatePlayerLeft:
+				
+			lw $a0, playerX
+			lw $a1, playerY	
+			
+			jal CheckPlayerMovement
+			
+			beqz $v0, input
+			
+			# Cancello la vecchia posizione
+			lw $a0, playerX
+			lw $a1, playerY
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, corridor
+			jal Draw
+				
+			# Disegno quella nuova								
+			lw $a0, playerX
+			lw $a1, playerY
+			addi $a0, $a0, -1
+			
+			# Salvo la nuova posizione
+			sw $a0, playerX
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, player
+			jal Draw
+			
+			# Torno a chiedere l'input
+			j input
+			
+		updatePlayerRight:
+		
+			lw $a0, playerX
+			lw $a1, playerY
+			
+			jal CheckPlayerMovement
+			
+			beqz $v0, input
+				
+			# Cancello la vecchia posizione
+			lw $a0, playerX
+			lw $a1, playerY
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, corridor
+			jal Draw
+				
+			# Disegno quella nuova								
+			lw $a0, playerX
+			lw $a1, playerY
+			addi $a0, $a0, 1
+			
+			# Salvo la nuova posizione
+			sw $a0, playerX
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, player
+			jal Draw
+			
+			# Torno a chiedere l'input
+			j input
+			
+		updatePlayerBottom:
+		
+			lw $a0, playerX
+			lw $a1, playerY	
+			
+			jal CheckPlayerMovement
+			
+			beqz $v0, input
+				
+			# Cancello la vecchia posizione
+			lw $a0, playerX
+			lw $a1, playerY
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, corridor
+			jal Draw
+				
+			# Disegno quella nuova								
+			lw $a0, playerX
+			lw $a1, playerY
+			addi $a1, $a1, 1
+			
+			# Salvo la nuova posizione
+			sw $a1, playerY
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, player
+			jal Draw
+			
+			# Torno a chiedere l'input
+			j input
+			
+		updatePlayerTop:
+		
+			lw $a0, playerX
+			lw $a1, playerY
+			
+			jal CheckPlayerMovement
+			
+			beqz $v0, input
+				
+			# Cancello la vecchia posizione
+			lw $a0, playerX
+			lw $a1, playerY
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, corridor
+			jal Draw
+				
+			# Disegno quella nuova								
+			lw $a0, playerX
+			lw $a1, playerY
+			addi $a1, $a1, -1
+			
+			# Salvo la nuova posizione
+			sw $a1, playerY
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, player
+			jal Draw
+			
+			# Torno a chiedere l'input
+			j input
+		
+	doNothing:
+	
+		j input	
+	
 	endGame:
 		
 		j EndGame
+		
+	# Funzione CheckPlayerMovement
+	# $a0 -> playerX
+	# $a1 -> playerY
+	# $a2 -> movimento desiderato dell'utente
+	# RITORNO $v0 -> 0 se non devo fare niente 1 se può muoversi
+	CheckPlayerMovement:
+	
+		# Salvo dove sono nello stack dato che dovrò chiamare un'altra funzione
+		sw $ra, 0($sp)
+	
+		lw $t9, border
+		lw $t6, lockedDoor
+		lw $t7, door
+	
+		beq $a2, 100, checkPlayerRight
+		beq $a2, 97, checkPlayerLeft
+		beq $a2, 119, checkPlayerTop
+		beq $a2, 115, checkPlayerBottom
+		
+		checkPlayerRight:
+		
+			# Aggiungo 1 per andare a destra
+			addi $a0, $a0, 1
+			jal GetCoordinate
+			
+			lw $a3, 0($v0)
+			
+			beq $a3, $t9, setToZero
+			beq $a3, $t6, setToZero
+			beq $a3, $t7, setToZero
+			
+			li $v0, 1
+			j endCheck
+			
+		checkPlayerLeft:
+		
+			# Sottraggo 1 per andare a sinistra
+			addi $a0, $a0, -1
+			jal GetCoordinate
+			
+			lw $a3, 0($v0)
+			
+			beq $a3, $t9, setToZero
+			beq $a3, $t6, setToZero
+			beq $a3, $t7, setToZero
+			
+			li $v0, 1
+			j endCheck
+			
+		checkPlayerTop:
+		
+			# Sottraggo 1 per andare in alto
+			addi $a1, $a1, -1
+			jal GetCoordinate
+			
+			lw $a3, 0($v0)
+			
+			beq $a3, $t9, setToZero
+			beq $a3, $t6, setToZero
+			beq $a3, $t7, setToZero
+			
+			li $v0, 1
+			j endCheck
+			
+		checkPlayerBottom:
+		
+			# Aggiungo 1 per andare in basso
+			addi $a1, $a1, 1
+			jal GetCoordinate
+			
+			lw $a3, 0($v0)
+			
+			beq $a3, $t9, setToZero
+			beq $a3, $t6, setToZero
+			beq $a3, $t7, setToZero
+			
+			li $v0, 1
+			j endCheck
+			
+		setToZero:
+		
+			li $v0, 0
+			j endCheck	
+		
+		endCheck:
+		
+			lw $ra, 0($sp)
+			jr $ra
 
 	# Funzione Pause
 	# $a0 -> numero di millisecondi per la pausa
