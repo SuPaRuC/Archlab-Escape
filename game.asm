@@ -1065,9 +1065,17 @@
 			lw $a0, playerX
 			lw $a1, playerY	
 			
+			# In $t5 salvo la direzione
+			move $t5, $a2
+			
 			jal CheckPlayerMovement
 			
 			beqz $v0, input
+			
+			# In $t3, $t4 salvo la posizione del giocatore
+			move $t3, $a0
+			move $t4, $a1
+			
 			beq $v0, 2, openDoor
 			beq $v0, 3, openLockedDoor
 			
@@ -1101,9 +1109,17 @@
 			lw $a0, playerX
 			lw $a1, playerY
 			
+			# In $t5 salvo la direzione
+			move $t5, $a2
+			
 			jal CheckPlayerMovement
 			
 			beqz $v0, input
+			
+			# In $t3, $t4 salvo la posizione del giocatore
+			move $t3, $a0
+			move $t4, $a1
+			
 			beq $v0, 2, openDoor
 			beq $v0, 3, openLockedDoor
 				
@@ -1137,9 +1153,17 @@
 			lw $a0, playerX
 			lw $a1, playerY	
 			
+			# In $t5 salvo la direzione
+			move $t5, $a2
+			
 			jal CheckPlayerMovement
 			
 			beqz $v0, input
+			
+			# In $t3, $t4 salvo la posizione del giocatore
+			move $t3, $a0
+			move $t4, $a1
+			
 			beq $v0, 2, openDoor
 			beq $v0, 3, openLockedDoor
 				
@@ -1173,9 +1197,17 @@
 			lw $a0, playerX
 			lw $a1, playerY
 			
+			# In $t5 salvo la direzione
+			move $t5, $a2
+			
 			jal CheckPlayerMovement
 			
 			beqz $v0, input
+		
+			# In $t3, $t4 salvo la posizione del giocatore
+			move $t3, $a0
+			move $t4, $a1
+			
 			beq $v0, 2, openDoor
 			beq $v0, 3, openLockedDoor
 				
@@ -1210,7 +1242,64 @@
 		li $v0, 50
 		syscall
 		
-		j input
+		beq $a0, 1, input
+		beq $a0, 2, input
+		
+		beq $t5, 97, openLeft
+		beq $t5, 100, openRight
+		beq $t5, 115, openDown
+		beq $t5, 119, openUp
+		
+		openLeft:
+		
+			move $a0, $t3
+			move $a1, $t4
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, corridor
+			jal Draw
+			
+			j opened
+			
+		openRight:
+		
+			move $a0, $t3
+			move $a1, $t4
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, corridor
+			jal Draw
+			
+			j opened
+			
+		openDown:
+		
+			move $a0, $t3
+			move $a1, $t4
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, corridor
+			jal Draw
+			
+			j opened
+			
+		openUp:
+		
+			move $a0, $t3
+			move $a1, $t4
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, corridor
+			jal Draw
+			
+			j opened
+		
+		opened:
+			j input
 		
 	openLockedDoor:
 	
