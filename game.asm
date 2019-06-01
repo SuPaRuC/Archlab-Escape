@@ -1070,7 +1070,7 @@
 			
 			jal CheckPlayerMovement
 			
-			beqz $v0, input
+			beqz $v0, updateRoom
 			
 			# In $t3, $t4 salvo la posizione del giocatore
 			move $t3, $a0
@@ -1102,7 +1102,7 @@
 			jal Draw
 			
 			# Torno a chiedere l'input
-			j input
+			j updateRoom
 			
 		updatePlayerRight:
 		
@@ -1114,7 +1114,7 @@
 			
 			jal CheckPlayerMovement
 			
-			beqz $v0, input
+			beqz $v0, updateRoom
 			
 			# In $t3, $t4 salvo la posizione del giocatore
 			move $t3, $a0
@@ -1146,7 +1146,7 @@
 			jal Draw
 			
 			# Torno a chiedere l'input
-			j input
+			j updateRoom
 			
 		updatePlayerBottom:
 		
@@ -1158,7 +1158,7 @@
 			
 			jal CheckPlayerMovement
 			
-			beqz $v0, input
+			beqz $v0, updateRoom
 			
 			# In $t3, $t4 salvo la posizione del giocatore
 			move $t3, $a0
@@ -1190,7 +1190,7 @@
 			jal Draw
 			
 			# Torno a chiedere l'input
-			j input
+			j updateRoom
 			
 		updatePlayerTop:
 		
@@ -1202,7 +1202,7 @@
 			
 			jal CheckPlayerMovement
 			
-			beqz $v0, input
+			beqz $v0, updateRoom
 		
 			# In $t3, $t4 salvo la posizione del giocatore
 			move $t3, $a0
@@ -1234,7 +1234,7 @@
 			jal Draw
 			
 			# Torno a chiedere l'input
-			j input
+			j updateRoom
 			
 	openDoor:
 	
@@ -1242,8 +1242,8 @@
 		li $v0, 50
 		syscall
 		
-		beq $a0, 1, input
-		beq $a0, 2, input
+		beq $a0, 1, updateRoom
+		beq $a0, 2, updateRoom
 		
 		beq $t5, 97, openLeft
 		beq $t5, 100, openRight
@@ -1299,7 +1299,7 @@
 			j opened
 		
 		opened:
-			j input
+			j updateRoom
 		
 	openLockedDoor:
 	
@@ -1315,7 +1315,38 @@
 		li $v0, 55
 		syscall
 		
-		j input
+		j updateRoom
+		
+	updateRoom:
+	
+		lw $a0, playerX
+		lw $a1, playerY
+		
+		beq $a0, 5, firstRoom1
+		beq $a0, 7, firstDefault
+		j endUpdateRoom
+				
+		firstRoom1:
+		
+			beq $a1, 4, room1
+			
+			room1:
+			
+				li $s1, 1
+				j endUpdateRoom
+				
+		firstDefault:
+			
+			beq $a1, 4, default
+			
+			default:
+			
+				li $s1, 0
+				j endUpdateRoom
+				
+		endUpdateRoom:
+		
+			j input
 		
 	doNothing:
 	
