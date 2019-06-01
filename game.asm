@@ -413,7 +413,7 @@
 		
 		whileRoom3Left:
 		
-			beq $t0, 4, whileRoom3Right
+			beq $t0, 5, whileRoom3Right
 			
 			move $a1, $t3
 			li $a0, 13
@@ -430,7 +430,7 @@
 			
 		whileRoom3Right:
 		
-			beq $t1, 4, whileRoom3Bottom
+			beq $t1, 5, whileRoom3Bottom
 			
 			move $a1, $t4
 			li $a0, 18
@@ -450,7 +450,7 @@
 			beq $t2, 3, doorRoom3
 			
 			move $a0, $t5
-			li $a1, 4
+			li $a1, 5
 			jal GetCoordinate
 			
 			move $a0, $v0
@@ -465,7 +465,7 @@
 		doorRoom3:
 		
 			li $a0, 14
-			li $a1, 4
+			li $a1, 5
 			jal GetCoordinate
 			
 			move $a0, $v0
@@ -871,7 +871,7 @@
 			lw $a1, border
 			jal Draw	
 			
-			# Draw door
+			# Disegno la porta
 			
 			li $a0, 22
 			li $a1, 6
@@ -1070,7 +1070,7 @@
 			
 			jal CheckPlayerMovement
 			
-			beqz $v0, input
+			beqz $v0, updateRoom
 			
 			# In $t3, $t4 salvo la posizione del giocatore
 			move $t3, $a0
@@ -1102,7 +1102,7 @@
 			jal Draw
 			
 			# Torno a chiedere l'input
-			j input
+			j updateRoom
 			
 		updatePlayerRight:
 		
@@ -1114,7 +1114,7 @@
 			
 			jal CheckPlayerMovement
 			
-			beqz $v0, input
+			beqz $v0, updateRoom
 			
 			# In $t3, $t4 salvo la posizione del giocatore
 			move $t3, $a0
@@ -1146,7 +1146,7 @@
 			jal Draw
 			
 			# Torno a chiedere l'input
-			j input
+			j updateRoom
 			
 		updatePlayerBottom:
 		
@@ -1158,7 +1158,7 @@
 			
 			jal CheckPlayerMovement
 			
-			beqz $v0, input
+			beqz $v0, updateRoom
 			
 			# In $t3, $t4 salvo la posizione del giocatore
 			move $t3, $a0
@@ -1190,7 +1190,7 @@
 			jal Draw
 			
 			# Torno a chiedere l'input
-			j input
+			j updateRoom
 			
 		updatePlayerTop:
 		
@@ -1202,7 +1202,7 @@
 			
 			jal CheckPlayerMovement
 			
-			beqz $v0, input
+			beqz $v0, updateRoom
 		
 			# In $t3, $t4 salvo la posizione del giocatore
 			move $t3, $a0
@@ -1234,7 +1234,7 @@
 			jal Draw
 			
 			# Torno a chiedere l'input
-			j input
+			j updateRoom
 			
 	openDoor:
 	
@@ -1242,8 +1242,8 @@
 		li $v0, 50
 		syscall
 		
-		beq $a0, 1, input
-		beq $a0, 2, input
+		beq $a0, 1, updateRoom
+		beq $a0, 2, updateRoom
 		
 		beq $t5, 97, openLeft
 		beq $t5, 100, openRight
@@ -1299,7 +1299,7 @@
 			j opened
 		
 		opened:
-			j input
+			j updateRoom
 		
 	openLockedDoor:
 	
@@ -1315,7 +1315,116 @@
 		li $v0, 55
 		syscall
 		
-		j input
+		j updateRoom
+		
+	updateRoom:
+	
+		lw $a0, playerX
+		lw $a1, playerY
+		
+		jal GetCoordinate
+		move $t0, $v0
+		
+		# Porta 1
+		li $a0, 6
+		li $a1, 4
+		jal GetCoordinate
+		beq $t0, $v0, room1
+		
+		# Porta 2
+		li $a0, 5
+		li $a1, 22
+		jal GetCoordinate
+		beq $t0, $v0, room2
+		
+		# Porta 3
+		li $a0, 14
+		li $a1, 5
+		jal GetCoordinate
+		beq $t0, $v0, room3
+		
+		# Porta 4
+		li $a0, 10
+		li $a1, 14
+		jal GetCoordinate
+		beq $t0, $v0, room4
+		
+		# Porta 5
+		li $a0, 20
+		li $a1, 24
+		jal GetCoordinate
+		beq $t0, $v0, room5
+		
+		# Porta 6
+		li $a0, 21
+		li $a1, 17
+		jal GetCoordinate
+		beq $t0, $v0, room6
+		li $a0, 25
+		li $a1, 11
+		jal GetCoordinate
+		beq $t0, $v0, room6
+		
+		# Porta 7
+		
+		li $a0, 22
+		li $a1, 6
+		jal GetCoordinate
+		beq $t0, $v0, room7
+				
+		# In caso di errori
+		j endUpdateRoom
+			
+		room1:
+			
+			beq $s1, 1, default
+			li $s1, 1
+			j endUpdateRoom
+				
+		room2:
+			
+			beq $s1, 2, default
+			li $s1, 2
+			j endUpdateRoom
+				
+		room3:
+			
+			beq $s1, 3, default
+			li $s1, 3
+			j endUpdateRoom
+				
+		room4:
+			
+			beq $s1, 4, default
+			li $s1, 4
+			j endUpdateRoom
+				
+		room5:
+			
+			beq $s1, 5, default
+			li $s1, 5
+			j endUpdateRoom
+				
+		room6:
+			
+			beq $s1, 6, default
+			li $s1, 6
+			j endUpdateRoom
+			
+		room7:
+			
+			beq $s1, 7, default
+			li $s1, 7
+			j endUpdateRoom
+		
+		default:
+		
+			li $s1, 0
+			j endUpdateRoom
+				
+		endUpdateRoom:
+		
+			j input
 		
 	doNothing:
 	
