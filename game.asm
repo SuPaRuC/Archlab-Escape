@@ -23,6 +23,7 @@
 	welcomeMessage: .asciiz "Benvenuto!"
 	openDoorMessage: .asciiz "Vuoi aprire la porta?"
 	notOpenDoorMessage: .asciiz "La porta non si apre, devi trovare la chiave"
+	looseMessage: .asciiz "Hai perso!"
 	
 	# Coordinate dello schermo
 	screenX: .word 32
@@ -1046,7 +1047,7 @@
 		
 		# Se l'utente non inserisce un nuovo input non faccio nulla
 		beqz $t1, doNothing
-		
+			
 		# Salvo la direzione per l'update
 		lw $a2, 4($t0)
 		
@@ -1424,13 +1425,114 @@
 				
 		endUpdateRoom:
 		
-			j input
+			j updateLife
+			
+	updateLife:
+		
+		beq $s0, 8, updateEasy
+		beq $s0, 6, updateNormal
+		beq $s0, 4, updateHard
+		
+		updateEasy:
+			
+			# Counter
+			li $t0, 0
+			
+			# Pixel to color
+			li $t1, 24
+			
+			whileUpdateEasy:
+			
+				beq $t0, $s2, input
+				bge $s2, 8, endGame
+				
+				move $a0, $t1
+				li $a1, 31
+				jal GetCoordinate
+				
+				move $a0, $v0
+				lw $a1, corridor
+				jal Draw
+				
+				addi $t0, $t0, 1
+				addi $t1, $t1, 1
+				
+				j whileUpdateEasy
+				
+		
+		updateNormal:
+		
+			
+			# Counter
+			li $t0, 0
+			
+			# Pixel to color
+			li $t1, 26
+			
+			whileUpdateNormal:
+			
+				beq $t0, $s2, input
+				bge $s2, 6, endGame
+				
+				move $a0, $t1
+				li $a1, 31
+				jal GetCoordinate
+				
+				move $a0, $v0
+				lw $a1, corridor
+				jal Draw
+				
+				addi $t0, $t0, 1
+				addi $t1, $t1, 1
+				
+				j whileUpdateNormal
+		
+		updateHard:
+		
+			
+			# Counter
+			li $t0, 0
+			
+			# Pixel to color
+			li $t1, 28
+			
+			whileUpdateHard:
+			
+				beq $t0, $s2, input
+				bge $s2, 4, endGame
+				
+				move $a0, $t1
+				li $a1, 31
+				jal GetCoordinate
+				
+				move $a0, $v0
+				lw $a1, corridor
+				jal Draw
+				
+				addi $t0, $t0, 1
+				addi $t1, $t1, 1
+				
+				j whileUpdateHard
+			
 		
 	doNothing:
 	
 		j input	
 	
 	endGame:
+	
+		li $a0, 31
+		li $a1, 31
+		jal GetCoordinate
+		
+		move $a0, $v0
+		lw $a1, corridor
+		jal Draw
+		
+		li $v0, 55
+		la $a0, looseMessage
+		li $a1, 1
+		syscall
 		
 		j EndGame
 		
