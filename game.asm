@@ -917,7 +917,10 @@
 			lw $a1, stairs
 			jal Draw
 				
-			j drawRoom1BG
+			# Se si vuole aggiungere lo sfondo alla stanza uno e due decommentare questa linea
+			#j drawRoom1BG
+				
+			j drawPlayer
 			
 	drawRoom1BG:
 	
