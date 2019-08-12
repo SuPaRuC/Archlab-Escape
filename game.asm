@@ -23,7 +23,7 @@
 	welcomeMessage: .asciiz "Benvenuto!"
 	openDoorMessage: .asciiz "Vuoi aprire la porta?"
 	notOpenDoorMessage: .asciiz "La porta non si apre, devi trovare la chiave"
-	looseMessage: .asciiz "Hai perso!"
+	looseMessage: .asciiz "Hai perso!\nVuoi ricominciare?"
 	
 	# Coordinate dello schermo
 	screenX: .word 32
@@ -80,18 +80,30 @@
 		easyDiff:
 			
 			lw $s0, easy
-			j clearBackground
+			j initPlayerPosition
 			
 		# Se la difficoltà è 'normale'
 		normalDiff:
 			
 			lw $s0, normal
-			j clearBackground
+			j initPlayerPosition
 			
 		# Se la difficoltà è 'difficile'
 		hardDiff:
 			
 			lw $s0, hard
+			j initPlayerPosition
+			
+	initPlayerPosition:
+	
+		clearPlayerPosition:
+		
+			# Risistemo il giocatore
+			li $a0, 12
+			sw $a0, playerX
+			li $a0, 27
+			sw $a0, playerY
+			
 			j clearBackground
 			
 	# Salvata la difficoltà pulisco lo sfondo
@@ -1029,6 +1041,7 @@
 			li $t7, 0
 			li $t8, 0
 			li $t9, 0 
+			li $s2, 0
 		
 	# Inizio della partita
 	
@@ -1532,10 +1545,11 @@
 		lw $a1, corridor
 		jal Draw
 		
-		li $v0, 55
+		li $v0, 50
 		la $a0, looseMessage
-		li $a1, 1
 		syscall
+		
+		beq $a0, 0, main
 		
 		j EndGame
 		
