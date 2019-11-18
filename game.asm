@@ -24,6 +24,7 @@
 	openDoorMessage: .asciiz "Vuoi aprire la porta?"
 	notOpenDoorMessage: .asciiz "La porta non si apre, devi trovare la chiave"
 	looseMessage: .asciiz "Hai perso!\nVuoi ricominciare?"
+	openChestMessage: .asciiz "Vuoi aprire la chest?"
 	
 	# Coordinate dello schermo
 	screenX: .word 32
@@ -1095,6 +1096,7 @@
 			
 			beq $v0, 2, openDoor
 			beq $v0, 3, openLockedDoor
+			beq $v0, 4, openChest
 			
 			# Cancello la vecchia posizione
 			lw $a0, playerX
@@ -1139,6 +1141,7 @@
 			
 			beq $v0, 2, openDoor
 			beq $v0, 3, openLockedDoor
+			beq $v0, 4, openChest
 				
 			# Cancello la vecchia posizione
 			lw $a0, playerX
@@ -1183,6 +1186,7 @@
 			
 			beq $v0, 2, openDoor
 			beq $v0, 3, openLockedDoor
+			beq $v0, 4, openChest
 				
 			# Cancello la vecchia posizione
 			lw $a0, playerX
@@ -1227,6 +1231,7 @@
 			
 			beq $v0, 2, openDoor
 			beq $v0, 3, openLockedDoor
+			beq $v0, 4, openChest
 				
 			# Cancello la vecchia posizione
 			lw $a0, playerX
@@ -1332,6 +1337,14 @@
 		li $v0, 55
 		syscall
 		
+		j updateRoom
+		
+	openChest:
+	
+		la $a0, openChestMessage
+		li $v0, 50
+		syscall
+	
 		j updateRoom
 		
 	updateRoom:
@@ -1557,7 +1570,7 @@
 	# $a0 -> playerX
 	# $a1 -> playerY
 	# $a2 -> movimento desiderato dell'utente
-	# RITORNO $v0 -> 0 se non devo fare niente 1 se può muoversi 2 se la porta è aperta 3 se la porta è bloccata
+	# RITORNO $v0 -> 0 se non devo fare niente 1 se può muoversi 2 se la porta è aperta 3 se la porta è bloccata 4 se vuole aprire una chest
 	CheckPlayerMovement:
 	
 		# Salvo dove sono nello stack dato che dovrò chiamare un'altra funzione
@@ -1566,6 +1579,7 @@
 		lw $t9, border
 		lw $t6, lockedDoor
 		lw $t7, door
+		lw $s7, chest
 	
 		beq $a2, 100, checkPlayerRight
 		beq $a2, 97, checkPlayerLeft
@@ -1583,6 +1597,7 @@
 			beq $a3, $t9, setToZero
 			beq $a3, $t6, setToThree
 			beq $a3, $t7, setToTwo
+			beq $a3, $s7, setToFour
 			
 			li $v0, 1
 			j endCheck
@@ -1598,6 +1613,7 @@
 			beq $a3, $t9, setToZero
 			beq $a3, $t6, setToThree
 			beq $a3, $t7, setToTwo
+			beq $a3, $s7, setToFour
 			
 			li $v0, 1
 			j endCheck
@@ -1613,6 +1629,7 @@
 			beq $a3, $t9, setToZero
 			beq $a3, $t6, setToThree
 			beq $a3, $t7, setToTwo
+			beq $a3, $s7, setToFour
 			
 			li $v0, 1
 			j endCheck
@@ -1628,6 +1645,7 @@
 			beq $a3, $t9, setToZero
 			beq $a3, $t6, setToThree
 			beq $a3, $t7, setToTwo
+			beq $a3, $s7, setToFour
 			
 			li $v0, 1
 			j endCheck
@@ -1645,6 +1663,11 @@
 		setToThree:
 		
 			li $v0, 3
+			j endCheck
+			
+		setToFour:
+		
+			li $v0, 4 
 			j endCheck
 		
 		endCheck:
