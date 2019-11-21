@@ -25,6 +25,7 @@
 	notOpenDoorMessage: .asciiz "La porta non si apre, devi trovare la chiave"
 	looseMessage: .asciiz "Hai perso!\nVuoi ricominciare?"
 	openChestMessage: .asciiz "Vuoi aprire la chest?"
+	foundKeyTwoMsg: .asciiz "Hai trovato una chiave misteriosa"
 	
 	# Coordinate dello schermo
 	screenX: .word 32
@@ -1344,6 +1345,43 @@
 		la $a0, openChestMessage
 		li $v0, 50
 		syscall
+		
+		beq $s1, 5, keyRoomTwo
+		j updateRoom
+		
+		keyRoomTwo:
+		
+			beqz $a0, obtainKeyTwo
+			j updateRoom
+			
+			obtainKeyTwo:
+			
+				li $s3, 1
+				la $a0, foundKeyTwoMsg
+				li $a1, 1
+				li $v0, 55
+				syscall
+				
+				# Apro la porta della stanza 2
+				li $a0, 10
+				li $a1, 14
+				jal GetCoordinate
+			
+				move $a0, $v0
+				lw $a1, corridor
+				jal Draw
+				
+				# Apro la porta della stanza 2
+				li $a0, 10
+				li $a1, 14
+				jal GetCoordinate
+			
+				move $a0, $v0
+				lw $a1, door
+				jal Draw
+				
+				j updateRoom
+				
 	
 		j updateRoom
 		
