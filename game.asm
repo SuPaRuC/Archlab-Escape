@@ -1414,6 +1414,26 @@
 					li $v0, 55
 					syscall
 					
+					# Disegno la porta1
+			
+					li $a0, 25
+					li $a1, 11
+					jal GetCoordinate
+			
+					move $a0, $v0
+					lw $a1, door
+					jal Draw
+			
+					# Disegno la porta2
+			
+					li $a0, 21
+					li $a1, 17
+					jal GetCoordinate
+			
+					move $a0, $v0
+					lw $a1, door
+					jal Draw
+					
 					j updateRoom
 	
 		j updateRoom
