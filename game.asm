@@ -25,7 +25,8 @@
 	notOpenDoorMessage: .asciiz "La porta non si apre, devi trovare la chiave"
 	looseMessage: .asciiz "Hai perso!\nVuoi ricominciare?"
 	openChestMessage: .asciiz "Vuoi aprire la chest?"
-	foundKeyTwoMsg: .asciiz "Hai trovato una chiave misteriosa"
+	foundKeyMsg: .asciiz "Hai trovato una chiave misteriosa"
+	enemyMessage: .asciiz "Oh no! Un nemico ti ha colpito!"
 	
 	# Coordinate dello schermo
 	screenX: .word 32
@@ -1346,18 +1347,19 @@
 		li $v0, 50
 		syscall
 		
-		beq $s1, 5, keyRoomTwo
+		beq $s1, 5, firstKey
+		beq $s1, 4, secondKey
 		j updateRoom
 		
-		keyRoomTwo:
+		firstKey:
 		
-			beqz $a0, obtainKeyTwo
+			beqz $a0, obtainFirstKey
 			j updateRoom
 			
-			obtainKeyTwo:
+			obtainFirstKey:
 			
 				li $s3, 1
-				la $a0, foundKeyTwoMsg
+				la $a0, foundKeyMsg
 				li $a1, 1
 				li $v0, 55
 				syscall
@@ -1382,6 +1384,37 @@
 				
 				j updateRoom
 				
+		secondKey:
+				
+			beqz $a0, obtainSecondKey
+			j updateRoom
+			
+			obtainSecondKey:
+			
+				checkRightChest:
+				
+					beq $t4, 0x0000000f, enemy1
+					beq $t4, 0x00000010, enemy1
+					j rightChest
+					
+					enemy1:
+					
+						addi $s2, $s2, 2
+						la $a0, enemyMessage
+						li $a1, 1
+						li $v0, 55
+						syscall
+						j updateRoom
+					
+				rightChest:
+				
+					li $s4, 1
+					la $a0, foundKeyMsg
+					li $a1, 1
+					li $v0, 55
+					syscall
+					
+					j updateRoom
 	
 		j updateRoom
 		
