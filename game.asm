@@ -21,6 +21,15 @@
 	# 100 -> D
 	
 	welcomeMessage: .asciiz "Benvenuto!"
+	openDoorMessage: .asciiz "Vuoi aprire la porta?"
+	notOpenDoorMessage: .asciiz "La porta non si apre, devi trovare la chiave"
+	looseMessage: .asciiz "Hai perso!\nVuoi ricominciare?"
+	openChestMessage: .asciiz "Vuoi aprire la chest?"
+	foundKeyMsg: .asciiz "Hai trovato una chiave misteriosa"
+	enemyMessage: .asciiz "Oh no! Un nemico ti ha colpito!"
+	lastEnemyMessage: .asciiz "Un nemico molto potente ti ha colpito!\nL'ultimo sforzo!"
+	winningMessage: .asciiz "Complimenti sei riuscito a scappare!"
+	replayGame: .asciiz "Vuoi rigiocare?" 
 	
 	# Coordinate dello schermo
 	screenX: .word 32
@@ -77,18 +86,30 @@
 		easyDiff:
 			
 			lw $s0, easy
-			j clearBackground
+			j initPlayerPosition
 			
 		# Se la difficoltà è 'normale'
 		normalDiff:
 			
 			lw $s0, normal
-			j clearBackground
+			j initPlayerPosition
 			
 		# Se la difficoltà è 'difficile'
 		hardDiff:
 			
 			lw $s0, hard
+			j initPlayerPosition
+			
+	initPlayerPosition:
+	
+		clearPlayerPosition:
+		
+			# Risistemo il giocatore
+			li $a0, 12
+			sw $a0, playerX
+			li $a0, 27
+			sw $a0, playerY
+			
 			j clearBackground
 			
 	# Salvata la difficoltà pulisco lo sfondo
@@ -411,7 +432,7 @@
 		
 		whileRoom3Left:
 		
-			beq $t0, 4, whileRoom3Right
+			beq $t0, 5, whileRoom3Right
 			
 			move $a1, $t3
 			li $a0, 13
@@ -428,7 +449,7 @@
 			
 		whileRoom3Right:
 		
-			beq $t1, 4, whileRoom3Bottom
+			beq $t1, 5, whileRoom3Bottom
 			
 			move $a1, $t4
 			li $a0, 18
@@ -448,7 +469,7 @@
 			beq $t2, 3, doorRoom3
 			
 			move $a0, $t5
-			li $a1, 4
+			li $a1, 5
 			jal GetCoordinate
 			
 			move $a0, $v0
@@ -463,7 +484,7 @@
 		doorRoom3:
 		
 			li $a0, 14
-			li $a1, 4
+			li $a1, 5
 			jal GetCoordinate
 			
 			move $a0, $v0
@@ -869,7 +890,7 @@
 			lw $a1, border
 			jal Draw	
 			
-			# Draw door
+			# Disegno la porta
 			
 			li $a0, 22
 			li $a1, 6
@@ -915,7 +936,10 @@
 			lw $a1, stairs
 			jal Draw
 				
-			j drawRoom1BG
+			# Se si vuole aggiungere lo sfondo alla stanza uno e due decommentare questa linea
+			#j drawRoom1BG
+				
+			j drawPlayer
 			
 	drawRoom1BG:
 	
@@ -1023,6 +1047,7 @@
 			li $t7, 0
 			li $t8, 0
 			li $t9, 0 
+			li $s2, 0
 		
 	# Inizio della partita
 	
@@ -1044,7 +1069,7 @@
 		
 		# Se l'utente non inserisce un nuovo input non faccio nulla
 		beqz $t1, doNothing
-		
+			
 		# Salvo la direzione per l'update
 		lw $a2, 4($t0)
 		
@@ -1063,9 +1088,21 @@
 			lw $a0, playerX
 			lw $a1, playerY	
 			
+			# In $t5 salvo la direzione
+			move $t5, $a2
+			
 			jal CheckPlayerMovement
 			
-			beqz $v0, input
+			beqz $v0, updateRoom
+			
+			# In $t3, $t4 salvo la posizione del giocatore
+			move $t3, $a0
+			move $t4, $a1
+			
+			beq $v0, 2, openDoor
+			beq $v0, 3, openLockedDoor
+			beq $v0, 4, openChest
+			beq $v0, 5, endWinningGame
 			
 			# Cancello la vecchia posizione
 			lw $a0, playerX
@@ -1090,16 +1127,28 @@
 			jal Draw
 			
 			# Torno a chiedere l'input
-			j input
+			j updateRoom
 			
 		updatePlayerRight:
 		
 			lw $a0, playerX
 			lw $a1, playerY
 			
+			# In $t5 salvo la direzione
+			move $t5, $a2
+			
 			jal CheckPlayerMovement
 			
-			beqz $v0, input
+			beqz $v0, updateRoom
+			
+			# In $t3, $t4 salvo la posizione del giocatore
+			move $t3, $a0
+			move $t4, $a1
+			
+			beq $v0, 2, openDoor
+			beq $v0, 3, openLockedDoor
+			beq $v0, 4, openChest
+			beq $v0, 5, endWinningGame
 				
 			# Cancello la vecchia posizione
 			lw $a0, playerX
@@ -1124,16 +1173,28 @@
 			jal Draw
 			
 			# Torno a chiedere l'input
-			j input
+			j updateRoom
 			
 		updatePlayerBottom:
 		
 			lw $a0, playerX
 			lw $a1, playerY	
 			
+			# In $t5 salvo la direzione
+			move $t5, $a2
+			
 			jal CheckPlayerMovement
 			
-			beqz $v0, input
+			beqz $v0, updateRoom
+			
+			# In $t3, $t4 salvo la posizione del giocatore
+			move $t3, $a0
+			move $t4, $a1
+			
+			beq $v0, 2, openDoor
+			beq $v0, 3, openLockedDoor
+			beq $v0, 4, openChest
+			beq $v0, 5, endWinningGame
 				
 			# Cancello la vecchia posizione
 			lw $a0, playerX
@@ -1158,16 +1219,28 @@
 			jal Draw
 			
 			# Torno a chiedere l'input
-			j input
+			j updateRoom
 			
 		updatePlayerTop:
 		
 			lw $a0, playerX
 			lw $a1, playerY
 			
+			# In $t5 salvo la direzione
+			move $t5, $a2
+			
 			jal CheckPlayerMovement
 			
-			beqz $v0, input
+			beqz $v0, updateRoom
+		
+			# In $t3, $t4 salvo la posizione del giocatore
+			move $t3, $a0
+			move $t4, $a1
+			
+			beq $v0, 2, openDoor
+			beq $v0, 3, openLockedDoor
+			beq $v0, 4, openChest
+			beq $v0, 5, endWinningGame
 				
 			# Cancello la vecchia posizione
 			lw $a0, playerX
@@ -1192,13 +1265,474 @@
 			jal Draw
 			
 			# Torno a chiedere l'input
-			j input
+			j updateRoom
+			
+	openDoor:
+	
+		la $a0, openDoorMessage
+		li $v0, 50
+		syscall
+		
+		beq $a0, 1, updateRoom
+		beq $a0, 2, updateRoom
+		
+		beq $t5, 97, openLeft
+		beq $t5, 100, openRight
+		beq $t5, 115, openDown
+		beq $t5, 119, openUp
+		
+		openLeft:
+		
+			move $a0, $t3
+			move $a1, $t4
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, corridor
+			jal Draw
+			
+			j opened
+			
+		openRight:
+		
+			move $a0, $t3
+			move $a1, $t4
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, corridor
+			jal Draw
+			
+			j opened
+			
+		openDown:
+		
+			move $a0, $t3
+			move $a1, $t4
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, corridor
+			jal Draw
+			
+			j opened
+			
+		openUp:
+		
+			move $a0, $t3
+			move $a1, $t4
+			jal GetCoordinate
+			
+			move $a0, $v0
+			lw $a1, corridor
+			jal Draw
+			
+			j opened
+		
+		opened:
+			j updateRoom
+		
+	openLockedDoor:
+	
+		la $a0, openDoorMessage
+		li $v0, 50
+		syscall
+		
+		beq $a0, 1, input
+		beq $a0, 2, input
+		
+		la $a0, notOpenDoorMessage
+		li $a1, 1
+		li $v0, 55
+		syscall
+		
+		j updateRoom
+		
+	openChest:
+	
+		la $a0, openChestMessage
+		li $v0, 50
+		syscall
+		
+		beq $s1, 5, firstKey
+		beq $s1, 4, secondKey
+		beq $s1, 6, thirdKey
+		beq $s1, 3, lastKey
+		j updateRoom
+		
+		firstKey:
+		
+			beqz $a0, obtainFirstKey
+			j updateRoom
+			
+			obtainFirstKey:
+			
+				li $s3, 1
+				la $a0, foundKeyMsg
+				li $a1, 1
+				li $v0, 55
+				syscall
+				
+				# Apro la porta della stanza 2
+				li $a0, 10
+				li $a1, 14
+				jal GetCoordinate
+			
+				move $a0, $v0
+				lw $a1, corridor
+				jal Draw
+				
+				# Apro la porta della stanza 2
+				li $a0, 10
+				li $a1, 14
+				jal GetCoordinate
+			
+				move $a0, $v0
+				lw $a1, door
+				jal Draw
+				
+				j updateRoom
+				
+		secondKey:
+				
+			beqz $a0, obtainSecondKey
+			j updateRoom
+			
+			obtainSecondKey:
+			
+				checkRightChest:
+				
+					beq $t4, 0x0000000f, enemy1
+					beq $t4, 0x00000010, enemy1
+					j rightChest
+					
+					enemy1:
+					
+						addi $s2, $s2, 2
+						la $a0, enemyMessage
+						li $a1, 1
+						li $v0, 55
+						syscall
+						j updateRoom
+					
+				rightChest:
+				
+					li $s4, 1
+					la $a0, foundKeyMsg
+					li $a1, 1
+					li $v0, 55
+					syscall
+					
+					# Apro la porta1
+			
+					li $a0, 25
+					li $a1, 11
+					jal GetCoordinate
+			
+					move $a0, $v0
+					lw $a1, door
+					jal Draw
+			
+					# Apro la porta2
+			
+					li $a0, 21
+					li $a1, 17
+					jal GetCoordinate
+			
+					move $a0, $v0
+					lw $a1, door
+					jal Draw
+					
+					j updateRoom
+					
+		thirdKey:
+		
+			beqz $a0, obtainThirdKey
+			j updateRoom
+			
+			obtainThirdKey:
+			
+				li $s4, 1
+				la $a0, foundKeyMsg
+				li $a1, 1
+				li $v0, 55
+				syscall
+				
+				# Apro la porta 
+			
+				li $a0, 14
+				li $a1, 5
+				jal GetCoordinate
+			
+				move $a0, $v0
+				lw $a1, door
+				jal Draw
+			
+				j updateRoom
+			
+		lastKey:
+		
+			beqz $a0, obtainLastKey
+			j updateRoom
+			
+			obtainLastKey:
+			
+				la $a0, lastEnemyMessage
+				li $a1, 2
+				li $v0, 55
+				syscall
+				
+				addi $s2, $s2, 5
+				
+				li $s5, 1
+				la $a0, foundKeyMsg
+				li $a1, 1
+				li $v0, 55
+				syscall
+				
+				# Apro l'ultima porta
+			
+				li $a0, 22
+				li $a1, 6
+				jal GetCoordinate
+			
+				move $a0, $v0
+				lw $a1, door
+				jal Draw
+	
+		j updateRoom
+		
+	updateRoom:
+	
+		lw $a0, playerX
+		lw $a1, playerY
+		
+		jal GetCoordinate
+		move $t0, $v0
+		
+		# Porta 1
+		li $a0, 6
+		li $a1, 4
+		jal GetCoordinate
+		beq $t0, $v0, room1
+		
+		# Porta 2
+		li $a0, 5
+		li $a1, 22
+		jal GetCoordinate
+		beq $t0, $v0, room2
+		
+		# Porta 3
+		li $a0, 14
+		li $a1, 5
+		jal GetCoordinate
+		beq $t0, $v0, room3
+		
+		# Porta 4
+		li $a0, 10
+		li $a1, 14
+		jal GetCoordinate
+		beq $t0, $v0, room4
+		
+		# Porta 5
+		li $a0, 20
+		li $a1, 24
+		jal GetCoordinate
+		beq $t0, $v0, room5
+		
+		# Porta 6
+		li $a0, 21
+		li $a1, 17
+		jal GetCoordinate
+		beq $t0, $v0, room6
+		li $a0, 25
+		li $a1, 11
+		jal GetCoordinate
+		beq $t0, $v0, room6
+		
+		# Porta 7
+		
+		li $a0, 22
+		li $a1, 6
+		jal GetCoordinate
+		beq $t0, $v0, room7
+				
+		# In caso di errori
+		j endUpdateRoom
+			
+		room1:
+			
+			beq $s1, 1, default
+			li $s1, 1
+			j endUpdateRoom
+				
+		room2:
+			
+			beq $s1, 2, default
+			li $s1, 2
+			j endUpdateRoom
+				
+		room3:
+			
+			beq $s1, 3, default
+			li $s1, 3
+			j endUpdateRoom
+				
+		room4:
+			
+			beq $s1, 4, default
+			li $s1, 4
+			j endUpdateRoom
+				
+		room5:
+			
+			beq $s1, 5, default
+			li $s1, 5
+			j endUpdateRoom
+				
+		room6:
+			
+			beq $s1, 6, default
+			li $s1, 6
+			j endUpdateRoom
+			
+		room7:
+			
+			beq $s1, 7, default
+			li $s1, 7
+			j endUpdateRoom
+		
+		default:
+		
+			li $s1, 0
+			j endUpdateRoom
+				
+		endUpdateRoom:
+		
+			j updateLife
+			
+	updateLife:
+		
+		beq $s0, 8, updateEasy
+		beq $s0, 6, updateNormal
+		beq $s0, 4, updateHard
+		
+		updateEasy:
+			
+			# Counter
+			li $t0, 0
+			
+			# Pixel to color
+			li $t1, 24
+			
+			whileUpdateEasy:
+			
+				beq $t0, $s2, input
+				bge $s2, 8, endGame
+				
+				move $a0, $t1
+				li $a1, 31
+				jal GetCoordinate
+				
+				move $a0, $v0
+				lw $a1, corridor
+				jal Draw
+				
+				addi $t0, $t0, 1
+				addi $t1, $t1, 1
+				
+				j whileUpdateEasy
+				
+		
+		updateNormal:
+		
+			
+			# Counter
+			li $t0, 0
+			
+			# Pixel to color
+			li $t1, 26
+			
+			whileUpdateNormal:
+			
+				beq $t0, $s2, input
+				bge $s2, 6, endGame
+				
+				move $a0, $t1
+				li $a1, 31
+				jal GetCoordinate
+				
+				move $a0, $v0
+				lw $a1, corridor
+				jal Draw
+				
+				addi $t0, $t0, 1
+				addi $t1, $t1, 1
+				
+				j whileUpdateNormal
+		
+		updateHard:
+		
+			
+			# Counter
+			li $t0, 0
+			
+			# Pixel to color
+			li $t1, 28
+			
+			whileUpdateHard:
+			
+				beq $t0, $s2, input
+				bge $s2, 4, endGame
+				
+				move $a0, $t1
+				li $a1, 31
+				jal GetCoordinate
+				
+				move $a0, $v0
+				lw $a1, corridor
+				jal Draw
+				
+				addi $t0, $t0, 1
+				addi $t1, $t1, 1
+				
+				j whileUpdateHard
+			
 		
 	doNothing:
 	
 		j input	
 	
 	endGame:
+	
+		li $a0, 31
+		li $a1, 31
+		jal GetCoordinate
+		
+		move $a0, $v0
+		lw $a1, corridor
+		jal Draw
+		
+		li $v0, 50
+		la $a0, looseMessage
+		syscall
+		
+		beq $a0, 0, main
+		
+		j EndGame
+		
+	endWinningGame:
+	
+		li $v0, 55
+		la $a0, winningMessage
+		li $a1, 1
+		syscall
+		
+		li $v0, 50
+		la $a0, replayGame
+		syscall
+		
+		beq $a0, 0, main
 		
 		j EndGame
 		
@@ -1206,7 +1740,7 @@
 	# $a0 -> playerX
 	# $a1 -> playerY
 	# $a2 -> movimento desiderato dell'utente
-	# RITORNO $v0 -> 0 se non devo fare niente 1 se può muoversi
+	# RITORNO $v0 -> 0 se non devo fare niente 1 se può muoversi 2 se la porta è aperta 3 se la porta è bloccata 4 se vuole aprire una chest
 	CheckPlayerMovement:
 	
 		# Salvo dove sono nello stack dato che dovrò chiamare un'altra funzione
@@ -1215,6 +1749,8 @@
 		lw $t9, border
 		lw $t6, lockedDoor
 		lw $t7, door
+		lw $s7, chest
+		lw $s6, stairs
 	
 		beq $a2, 100, checkPlayerRight
 		beq $a2, 97, checkPlayerLeft
@@ -1230,8 +1766,10 @@
 			lw $a3, 0($v0)
 			
 			beq $a3, $t9, setToZero
-			beq $a3, $t6, setToZero
-			beq $a3, $t7, setToZero
+			beq $a3, $t6, setToThree
+			beq $a3, $t7, setToTwo
+			beq $a3, $s7, setToFour
+			beq $a3, $s6, setToFive
 			
 			li $v0, 1
 			j endCheck
@@ -1245,8 +1783,10 @@
 			lw $a3, 0($v0)
 			
 			beq $a3, $t9, setToZero
-			beq $a3, $t6, setToZero
-			beq $a3, $t7, setToZero
+			beq $a3, $t6, setToThree
+			beq $a3, $t7, setToTwo
+			beq $a3, $s7, setToFour
+			beq $a3, $s6, setToFive
 			
 			li $v0, 1
 			j endCheck
@@ -1260,8 +1800,10 @@
 			lw $a3, 0($v0)
 			
 			beq $a3, $t9, setToZero
-			beq $a3, $t6, setToZero
-			beq $a3, $t7, setToZero
+			beq $a3, $t6, setToThree
+			beq $a3, $t7, setToTwo
+			beq $a3, $s7, setToFour
+			beq $a3, $s6, setToFive
 			
 			li $v0, 1
 			j endCheck
@@ -1275,8 +1817,10 @@
 			lw $a3, 0($v0)
 			
 			beq $a3, $t9, setToZero
-			beq $a3, $t6, setToZero
-			beq $a3, $t7, setToZero
+			beq $a3, $t6, setToThree
+			beq $a3, $t7, setToTwo
+			beq $a3, $s7, setToFour
+			beq $a3, $s6, setToFive
 			
 			li $v0, 1
 			j endCheck
@@ -1285,6 +1829,26 @@
 		
 			li $v0, 0
 			j endCheck	
+			
+		setToTwo:
+		
+			li $v0, 2
+			j endCheck
+			
+		setToThree:
+		
+			li $v0, 3
+			j endCheck
+			
+		setToFour:
+		
+			li $v0, 4 
+			j endCheck
+			
+		setToFive:
+		
+			li $v0, 5
+			j endCheck
 		
 		endCheck:
 		
