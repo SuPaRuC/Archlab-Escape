@@ -1446,13 +1446,6 @@
 			
 			obtainThirdKey:
 			
-				#la $a0, lastEnemyMessage
-				#li $a1, 2
-				#li $v0, 55
-				#syscall
-				
-				#addi $s2, $s2, 5
-			
 				li $s4, 1
 				la $a0, foundKeyMsg
 				li $a1, 1
@@ -1473,8 +1466,33 @@
 			
 		lastKey:
 		
-			beqz $a0, obtainThirdKey
+			beqz $a0, obtainLastKey
 			j updateRoom
+			
+			obtainLastKey:
+			
+				la $a0, lastEnemyMessage
+				li $a1, 2
+				li $v0, 55
+				syscall
+				
+				addi $s2, $s2, 5
+				
+				li $s5, 1
+				la $a0, foundKeyMsg
+				li $a1, 1
+				li $v0, 55
+				syscall
+				
+				# Apro l'ultima porta
+			
+				li $a0, 22
+				li $a1, 6
+				jal GetCoordinate
+			
+				move $a0, $v0
+				lw $a1, door
+				jal Draw
 	
 		j updateRoom
 		
