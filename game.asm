@@ -28,6 +28,8 @@
 	foundKeyMsg: .asciiz "Hai trovato una chiave misteriosa"
 	enemyMessage: .asciiz "Oh no! Un nemico ti ha colpito!"
 	lastEnemyMessage: .asciiz "Un nemico molto potente ti ha colpito!\nL'ultimo sforzo!"
+	winningMessage: .asciiz "Complimenti sei riuscito a scappare!"
+	replayGame: .asciiz "Vuoi rigiocare?" 
 	
 	# Coordinate dello schermo
 	screenX: .word 32
@@ -1100,6 +1102,7 @@
 			beq $v0, 2, openDoor
 			beq $v0, 3, openLockedDoor
 			beq $v0, 4, openChest
+			beq $v0, 5, endWinningGame
 			
 			# Cancello la vecchia posizione
 			lw $a0, playerX
@@ -1145,6 +1148,7 @@
 			beq $v0, 2, openDoor
 			beq $v0, 3, openLockedDoor
 			beq $v0, 4, openChest
+			beq $v0, 5, endWinningGame
 				
 			# Cancello la vecchia posizione
 			lw $a0, playerX
@@ -1190,6 +1194,7 @@
 			beq $v0, 2, openDoor
 			beq $v0, 3, openLockedDoor
 			beq $v0, 4, openChest
+			beq $v0, 5, endWinningGame
 				
 			# Cancello la vecchia posizione
 			lw $a0, playerX
@@ -1235,6 +1240,7 @@
 			beq $v0, 2, openDoor
 			beq $v0, 3, openLockedDoor
 			beq $v0, 4, openChest
+			beq $v0, 5, endWinningGame
 				
 			# Cancello la vecchia posizione
 			lw $a0, playerX
@@ -1715,6 +1721,21 @@
 		
 		j EndGame
 		
+	endWinningGame:
+	
+		li $v0, 55
+		la $a0, winningMessage
+		li $a1, 1
+		syscall
+		
+		li $v0, 50
+		la $a0, replayGame
+		syscall
+		
+		beq $a0, 0, main
+		
+		j EndGame
+		
 	# Funzione CheckPlayerMovement
 	# $a0 -> playerX
 	# $a1 -> playerY
@@ -1729,6 +1750,7 @@
 		lw $t6, lockedDoor
 		lw $t7, door
 		lw $s7, chest
+		lw $s6, stairs
 	
 		beq $a2, 100, checkPlayerRight
 		beq $a2, 97, checkPlayerLeft
@@ -1747,6 +1769,7 @@
 			beq $a3, $t6, setToThree
 			beq $a3, $t7, setToTwo
 			beq $a3, $s7, setToFour
+			beq $a3, $s6, setToFive
 			
 			li $v0, 1
 			j endCheck
@@ -1763,6 +1786,7 @@
 			beq $a3, $t6, setToThree
 			beq $a3, $t7, setToTwo
 			beq $a3, $s7, setToFour
+			beq $a3, $s6, setToFive
 			
 			li $v0, 1
 			j endCheck
@@ -1779,6 +1803,7 @@
 			beq $a3, $t6, setToThree
 			beq $a3, $t7, setToTwo
 			beq $a3, $s7, setToFour
+			beq $a3, $s6, setToFive
 			
 			li $v0, 1
 			j endCheck
@@ -1795,6 +1820,7 @@
 			beq $a3, $t6, setToThree
 			beq $a3, $t7, setToTwo
 			beq $a3, $s7, setToFour
+			beq $a3, $s6, setToFive
 			
 			li $v0, 1
 			j endCheck
@@ -1817,6 +1843,11 @@
 		setToFour:
 		
 			li $v0, 4 
+			j endCheck
+			
+		setToFive:
+		
+			li $v0, 5
 			j endCheck
 		
 		endCheck:
