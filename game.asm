@@ -25,6 +25,9 @@
 	notOpenDoorMessage: .asciiz "La porta non si apre, devi trovare la chiave"
 	looseMessage: .asciiz "Hai perso!\nVuoi ricominciare?"
 	openChestMessage: .asciiz "Vuoi aprire la chest?"
+	foundKeyMsg: .asciiz "Hai trovato una chiave misteriosa"
+	enemyMessage: .asciiz "Oh no! Un nemico ti ha colpito!"
+	lastEnemyMessage: .asciiz "Un nemico molto potente ti ha colpito!\nL'ultimo sforzo!"
 	
 	# Coordinate dello schermo
 	screenX: .word 32
@@ -1344,6 +1347,152 @@
 		la $a0, openChestMessage
 		li $v0, 50
 		syscall
+		
+		beq $s1, 5, firstKey
+		beq $s1, 4, secondKey
+		beq $s1, 6, thirdKey
+		beq $s1, 3, lastKey
+		j updateRoom
+		
+		firstKey:
+		
+			beqz $a0, obtainFirstKey
+			j updateRoom
+			
+			obtainFirstKey:
+			
+				li $s3, 1
+				la $a0, foundKeyMsg
+				li $a1, 1
+				li $v0, 55
+				syscall
+				
+				# Apro la porta della stanza 2
+				li $a0, 10
+				li $a1, 14
+				jal GetCoordinate
+			
+				move $a0, $v0
+				lw $a1, corridor
+				jal Draw
+				
+				# Apro la porta della stanza 2
+				li $a0, 10
+				li $a1, 14
+				jal GetCoordinate
+			
+				move $a0, $v0
+				lw $a1, door
+				jal Draw
+				
+				j updateRoom
+				
+		secondKey:
+				
+			beqz $a0, obtainSecondKey
+			j updateRoom
+			
+			obtainSecondKey:
+			
+				checkRightChest:
+				
+					beq $t4, 0x0000000f, enemy1
+					beq $t4, 0x00000010, enemy1
+					j rightChest
+					
+					enemy1:
+					
+						addi $s2, $s2, 2
+						la $a0, enemyMessage
+						li $a1, 1
+						li $v0, 55
+						syscall
+						j updateRoom
+					
+				rightChest:
+				
+					li $s4, 1
+					la $a0, foundKeyMsg
+					li $a1, 1
+					li $v0, 55
+					syscall
+					
+					# Apro la porta1
+			
+					li $a0, 25
+					li $a1, 11
+					jal GetCoordinate
+			
+					move $a0, $v0
+					lw $a1, door
+					jal Draw
+			
+					# Apro la porta2
+			
+					li $a0, 21
+					li $a1, 17
+					jal GetCoordinate
+			
+					move $a0, $v0
+					lw $a1, door
+					jal Draw
+					
+					j updateRoom
+					
+		thirdKey:
+		
+			beqz $a0, obtainThirdKey
+			j updateRoom
+			
+			obtainThirdKey:
+			
+				li $s4, 1
+				la $a0, foundKeyMsg
+				li $a1, 1
+				li $v0, 55
+				syscall
+				
+				# Apro la porta 
+			
+				li $a0, 14
+				li $a1, 5
+				jal GetCoordinate
+			
+				move $a0, $v0
+				lw $a1, door
+				jal Draw
+			
+				j updateRoom
+			
+		lastKey:
+		
+			beqz $a0, obtainLastKey
+			j updateRoom
+			
+			obtainLastKey:
+			
+				la $a0, lastEnemyMessage
+				li $a1, 2
+				li $v0, 55
+				syscall
+				
+				addi $s2, $s2, 5
+				
+				li $s5, 1
+				la $a0, foundKeyMsg
+				li $a1, 1
+				li $v0, 55
+				syscall
+				
+				# Apro l'ultima porta
+			
+				li $a0, 22
+				li $a1, 6
+				jal GetCoordinate
+			
+				move $a0, $v0
+				lw $a1, door
+				jal Draw
 	
 		j updateRoom
 		
