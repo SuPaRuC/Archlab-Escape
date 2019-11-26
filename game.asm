@@ -27,6 +27,7 @@
 	openChestMessage: .asciiz "Vuoi aprire la chest?"
 	foundKeyMsg: .asciiz "Hai trovato una chiave misteriosa"
 	enemyMessage: .asciiz "Oh no! Un nemico ti ha colpito!"
+	lastEnemyMessage: .asciiz "Un nemico molto potente ti ha colpito!\nL'ultimo sforzo!"
 	
 	# Coordinate dello schermo
 	screenX: .word 32
@@ -1349,6 +1350,8 @@
 		
 		beq $s1, 5, firstKey
 		beq $s1, 4, secondKey
+		beq $s1, 6, thirdKey
+		beq $s1, 3, lastKey
 		j updateRoom
 		
 		firstKey:
@@ -1414,7 +1417,7 @@
 					li $v0, 55
 					syscall
 					
-					# Disegno la porta1
+					# Apro la porta1
 			
 					li $a0, 25
 					li $a1, 11
@@ -1424,7 +1427,7 @@
 					lw $a1, door
 					jal Draw
 			
-					# Disegno la porta2
+					# Apro la porta2
 			
 					li $a0, 21
 					li $a1, 17
@@ -1435,6 +1438,43 @@
 					jal Draw
 					
 					j updateRoom
+					
+		thirdKey:
+		
+			beqz $a0, obtainThirdKey
+			j updateRoom
+			
+			obtainThirdKey:
+			
+				#la $a0, lastEnemyMessage
+				#li $a1, 2
+				#li $v0, 55
+				#syscall
+				
+				#addi $s2, $s2, 5
+			
+				li $s4, 1
+				la $a0, foundKeyMsg
+				li $a1, 1
+				li $v0, 55
+				syscall
+				
+				# Apro la porta 
+			
+				li $a0, 14
+				li $a1, 5
+				jal GetCoordinate
+			
+				move $a0, $v0
+				lw $a1, door
+				jal Draw
+			
+				j updateRoom
+			
+		lastKey:
+		
+			beqz $a0, obtainThirdKey
+			j updateRoom
 	
 		j updateRoom
 		
