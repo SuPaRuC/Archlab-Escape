@@ -1082,6 +1082,7 @@
 		beq $a2, 100, updatePlayerRight
 		beq $a2, 115, updatePlayerBottom
 		beq $a2, 119, updatePlayerTop
+		j doNothing
 		
 		updatePlayerLeft:
 				
