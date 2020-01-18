@@ -1,15 +1,15 @@
 .data
 	
-	####################################
-	#                                  #
-	#          Archlab Escape          #
-	#     Unit Width in pixels: 16     #
-	#    Unit Height in pixels: 16     #
-	#   Display Width in pixels: 512   #
-	#  Display Height in pixels: 512   #
-	#        Base address: $gp         #
-	#                                  #
-	####################################
+	#####################################
+	#                                   #
+	#         Labyrinth Escape          #
+	#    Unità larghezza in pixel: 16   #
+	#    Unità altezza in pixel: 16     #
+	#  Larghezza display in pixel: 512  #
+	#  Altezza display in pixel: 512    #
+	#        Base address: $gp          #
+	#                                   #
+	#####################################
 	
 	# Questo gioco fa uso dei seguenti tools:
 	# - Bitmap Display -> indicazioni fornite nell'area soprastante
@@ -1483,7 +1483,7 @@
 				li $v0, 55
 				syscall
 				
-				addi $s2, $s2, 5
+				addi $s2, $s2, 3
 				
 				li $s5, 1
 				la $a0, foundKeyMsg
