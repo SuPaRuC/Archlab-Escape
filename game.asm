@@ -1745,7 +1745,10 @@
 	CheckPlayerMovement:
 	
 		# Salvo dove sono nello stack dato che dovrò chiamare un'altra funzione
-		sw $ra, 0($sp)
+		subu $sp, $sp, 12
+		sw $fp, 8($sp)
+		sw $ra, 4($sp)
+		sw $s6, 0($sp)
 	
 		lw $t9, border
 		lw $t6, lockedDoor
@@ -1852,8 +1855,12 @@
 			j endCheck
 		
 		endCheck:
-		
-			lw $ra, 0($sp)
+			
+			lw $s6, 0($sp)
+			lw $ra, 4($sp)
+			lw $fp, 8($sp)
+			addi $sp, $sp, 12
+			
 			jr $ra
 
 	# Funzione Pause
@@ -1862,8 +1869,15 @@
 	
 	Pause:
 		
+		subu $sp, $sp, 4
+		sw $fp, 0($sp)
+		
 		li $v0, 32
 		syscall
+		
+		lw $fp, 0($sp)
+		addi $sp, $sp, 4
+		
 		jr $ra
 		
 	# Funzione GetCoordinate
@@ -1872,6 +1886,9 @@
 	# RITORNO $v0 -> pixel da colorare
 	
 	GetCoordinate:
+		
+		subu $sp, $sp, 4
+		sw $fp, 0($sp)
 		
 		lw $t8, screenX
 		li $a2, 4
@@ -1890,6 +1907,9 @@
 		# Aggiungo il base address
 		add $v0, $v0, $gp
 		
+		lw $fp, 0($sp)
+		addi $sp, $sp, 4
+		
 		# Ritorno $v0
 		jr $ra
 		
@@ -1899,8 +1919,14 @@
 	# La funzione non ritorna nulla
 	
 	Draw:
-	
+		subu $sp, $sp, 4
+		sw $fp, 0($sp)
+		
 		sw $a1, 0($a0)
+		
+		lw $fp, 0($sp)
+		addi $sp, $sp, 4
+		
 		jr $ra
 		
 	# Funzione EndGame
